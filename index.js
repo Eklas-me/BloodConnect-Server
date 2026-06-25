@@ -57,11 +57,11 @@ const auth = betterAuth({
   user: {
     additionalFields: {
       bloodGroup: { type: "string", required: false, defaultValue: "" },
-      district:   { type: "string", required: false, defaultValue: "" },
-      upazila:    { type: "string", required: false, defaultValue: "" },
-      avatar:     { type: "string", required: false, defaultValue: "" },
-      role:       { type: "string", required: false, defaultValue: "donor" },
-      status:     { type: "string", required: false, defaultValue: "active" },
+      district: { type: "string", required: false, defaultValue: "" },
+      upazila: { type: "string", required: false, defaultValue: "" },
+      avatar: { type: "string", required: false, defaultValue: "" },
+      role: { type: "string", required: false, defaultValue: "donor" },
+      status: { type: "string", required: false, defaultValue: "active" },
     },
   },
   session: {
@@ -88,9 +88,9 @@ app.all("/api/auth/*splat", toNodeHandler(auth));
 app.use(express.json());
 
 // ─── Collections ─────────────────────────────────────────────────────────────
-const usersCollection            = db.collection("user"); // Better Auth uses "user" collection
+const usersCollection = db.collection("user"); // Better Auth uses "user" collection
 const donationRequestsCollection = db.collection("donationRequests");
-const fundsCollection            = db.collection("funds");
+const fundsCollection = db.collection("funds");
 
 // ─── JWT Token Endpoint ──────────────────────────────────────────────────────
 app.post("/api/jwt", async (req, res) => {
@@ -116,7 +116,7 @@ const verifyToken = async (req, res, next) => {
   const token = authHeader.split(" ")[1];
   try {
     const decoded = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
-    
+
     // Find the user from the Better Auth "user" collection by email
     const dbUser = await usersCollection.findOne({ email: decoded.email });
     if (!dbUser) {
@@ -433,8 +433,8 @@ app.get("/api/search/donors", async (req, res) => {
     const { bloodGroup, district, upazila } = req.query;
     const filter = { role: "donor", status: "active" };
     if (bloodGroup) filter.bloodGroup = bloodGroup;
-    if (district)   filter.district = district;
-    if (upazila)    filter.upazila = upazila;
+    if (district) filter.district = district;
+    if (upazila) filter.upazila = upazila;
 
     const donors = await usersCollection
       .find(filter, { projection: { hashedPassword: 0 } })
@@ -495,7 +495,7 @@ app.post("/api/create-payment-intent", verifyToken, async (req, res) => {
 
 app.get("/api/stats", verifyToken, verifyAdminOrVolunteer, async (req, res) => {
   try {
-    const totalDonors   = await usersCollection.countDocuments({ role: "donor" });
+    const totalDonors = await usersCollection.countDocuments({ role: "donor" });
     const totalRequests = await donationRequestsCollection.countDocuments();
 
     const fundingAgg = await fundsCollection

@@ -1,0 +1,30 @@
+{
+  "name": "blood-donation-platform-server",
+  "version": "1.0.0",
+  "description": "Blood Donation Platform REST API Server",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "node --watch index.js"
+  },
+  "engines": {
+    "node": ">=18.0.0 <=22.x"
+  },
+  "keywords": [
+    "blood-donation",
+    "mern",
+    "express"
+  ],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "dependencies": {
+    "better-auth": "^1.2.8",
+    "cors": "^2.8.6",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "jsonwebtoken": "^9.0.3",
+    "mongodb": "^7.3.0",
+    "stripe": "^22.2.2"
+  }
+}
