@@ -7,7 +7,38 @@ const usersCollection = db.collection("user");
 const donationRequestsCollection = db.collection("donationRequests");
 const fundsCollection = db.collection("funds");
 
-// Get statistics summary (Admin/Volunteer only)
+// ─── Public Stats (Home Page) ─────────────────────────────────────────────────
+router.get("/public-stats", async (req, res) => {
+  try {
+    const [
+      activeDonors,
+      totalRequests,
+      livesSaved,
+      fundingAgg,
+    ] = await Promise.all([
+      usersCollection.countDocuments({ role: "donor", status: "active" }),
+      donationRequestsCollection.countDocuments(),
+      donationRequestsCollection.countDocuments({ status: "done" }),
+      fundsCollection
+        .aggregate([{ $group: { _id: null, total: { $sum: "$amount" } } }])
+        .toArray(),
+    ]);
+
+    const totalFunding = fundingAgg[0]?.total || 0;
+
+    res.json({
+      activeDonors,
+      totalRequests,
+      livesSaved,
+      totalFunding,
+    });
+  } catch (err) {
+    console.error("Public stats error:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+// ─── Admin/Volunteer Stats ─────────────────────────────────────────────────────
 router.get("/stats", verifyToken, verifyAdminOrVolunteer, async (req, res) => {
   try {
     const totalDonors = await usersCollection.countDocuments({ role: "donor" });
