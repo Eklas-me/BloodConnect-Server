@@ -1,25 +1,20 @@
-// ─── Fix TLS issues on Windows + Node.js v26 (local dev only) ───────────────
-process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
-
-import dns from "node:dns";
-dns.setServers(["8.8.8.8", "8.8.4.4"]);
-
 import express from "express";
 import cors from "cors";
 import { toNodeHandler } from "better-auth/node";
 import jwt from "jsonwebtoken";
 import * as dotenv from "dotenv";
-
-// Config & Database Imports
 import { db, connectDB } from "./config/db.js";
 import { auth } from "./config/auth.js";
-
-// Router Imports
 import profileRouter from "./routes/profile.js";
 import usersRouter from "./routes/users.js";
 import donationRequestsRouter from "./routes/donationRequests.js";
 import fundsRouter from "./routes/funds.js";
 import statsRouter from "./routes/stats.js";
+
+// Local development only workaround for node v26 tls issues
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
+import dns from "node:dns";
+dns.setServers(["8.8.8.8", "8.8.4.4"]);
 
 dotenv.config();
 
@@ -27,7 +22,6 @@ const app = express();
 const port = process.env.PORT || 5000;
 const usersCollection = db.collection("user");
 
-// ─── CORS Middleware ─────────────────────────────────────────────────────────
 app.use(
   cors({
     origin: [
@@ -39,13 +33,9 @@ app.use(
   })
 );
 
-// Mount Better Auth handler — handles /api/auth/* routes
 app.all("/api/auth/*splat", toNodeHandler(auth));
-
-// JSON body parser (after Better Auth handler)
 app.use(express.json());
 
-// ─── Public JWT Generation Endpoint ──────────────────────────────────────────
 app.post("/api/jwt", async (req, res) => {
   try {
     const { email } = req.body;
@@ -59,7 +49,6 @@ app.post("/api/jwt", async (req, res) => {
   }
 });
 
-// ─── Public Donor Search Endpoint ────────────────────────────────────────────
 app.get("/api/search/donors", async (req, res) => {
   try {
     const { bloodGroup, district, upazila } = req.query;
@@ -77,19 +66,16 @@ app.get("/api/search/donors", async (req, res) => {
   }
 });
 
-// ─── Mount Modular Routers ───────────────────────────────────────────────────
 app.use("/api/profile", profileRouter);
 app.use("/api/users", usersRouter);
 app.use("/api", donationRequestsRouter);
 app.use("/api", fundsRouter);
 app.use("/api", statsRouter);
 
-// ─── Health check ─────────────────────────────────────────────────────────────
 app.get("/", (req, res) => {
   res.json({ message: "Blood Donation Platform Server is running 🩸" });
 });
 
-// ─── Start Server + Connect MongoDB ──────────────────────────────────────────
 app.listen(port, () => {
   console.log(`🚀 Server running on port ${port}`);
 });

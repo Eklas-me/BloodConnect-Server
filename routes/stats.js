@@ -7,7 +7,7 @@ const usersCollection = db.collection("user");
 const donationRequestsCollection = db.collection("donationRequests");
 const fundsCollection = db.collection("funds");
 
-// ─── Public Stats (Home Page) ─────────────────────────────────────────────────
+// Public stats
 router.get("/public-stats", async (req, res) => {
   try {
     const [
@@ -38,7 +38,7 @@ router.get("/public-stats", async (req, res) => {
   }
 });
 
-// ─── Admin/Volunteer Stats ─────────────────────────────────────────────────────
+// Admin and volunteer stats
 router.get("/stats", verifyToken, verifyAdminOrVolunteer, async (req, res) => {
   try {
     const totalDonors = await usersCollection.countDocuments({ role: "donor" });
